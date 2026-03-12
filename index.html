@@ -1,40 +1,73 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SuisGarden 通寶機率計算器</title>
+    <title>SuisGarden | 通寶機率計算器</title>
     <style>
+        /* 顏色變數：參考明日方舟 UI 色調 */
         :root {
-            --primary: #2563eb;
-            --bg: #f8fafc;
-            --card: #ffffff;
+            --bg-color: #000000;
+            --card-bg: #121212;
+            --accent-cyan: #00e5ff;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+            --border-color: #333333;
+            --input-bg: #1a1a1a;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg);
-            color: #1e293b;
-            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
         }
 
-        .container {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        .terminal-container {
             width: 100%;
-            max-width: 500px;
+            max-width: 800px;
+            border-left: 4px solid var(--accent-cyan);
+            padding-left: 20px;
         }
 
         h1 {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-            text-align: center;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        h1::before {
+            content: "";
+            width: 4px;
+            height: 24px;
+            background: var(--accent-cyan);
+            margin-right: 12px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .module-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            position: relative;
+        }
+
+        .module-title {
+            color: var(--accent-cyan);
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
         }
 
         .input-group {
@@ -43,195 +76,163 @@
 
         label {
             display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-dim);
             margin-bottom: 5px;
         }
 
-        input,
-        textarea {
+        input, textarea {
             width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
             padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
+            font-family: monospace;
             box-sizing: border-box;
-            font-size: 1rem;
         }
 
-        textarea {
-            height: 80px;
-            resize: vertical;
+        input:focus, textarea:focus {
+            border-color: var(--accent-cyan);
+            outline: none;
         }
 
         button {
             width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
             padding: 12px;
-            border-radius: 6px;
-            font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
-            margin-top: 10px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s;
         }
 
         button:hover {
-            opacity: 0.9;
+            background: var(--accent-cyan);
+            color: #000;
         }
 
-        #results-container {
-            margin-top: 25px;
-            border-top: 2px solid #f1f5f9;
+        #result-display {
+            margin-top: 30px;
+            border-top: 1px solid var(--accent-cyan);
             padding-top: 20px;
         }
 
-        .result-item {
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #f1f5f9;
-            border-radius: 6px;
+        .result-row {
+            padding: 8px 0;
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .winner-box {
-            background: #dcfce7;
-            border: 1px solid #22c55e;
+        .winner-panel {
+            margin-top: 20px;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid var(--accent-cyan);
             padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
         }
 
-        .winner-title {
-            font-weight: bold;
-            color: #166534;
-            display: block;
+        @media (max-width: 600px) {
+            .grid-layout { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-
 <body>
 
-    <div class="container">
-        <h1>🎴 通寶機率計算器</h1>
+<div class="terminal-container">
+    <h1>明日方舟機率計算器 (Integrated Strategy Logic)</h1>
 
-        <div class="input-group">
-            <label>擁有 [花錢 衡錢 厲錢]</label>
-            <input type="text" id="counts" value="3 4 3" placeholder="例如: 3 4 3">
+    <div class="grid-layout">
+        <div class="module-card">
+            <div class="module-title">通寶配置 (Operator)</div>
+            <div class="input-group">
+                <label>擁有比例 [花錢 衡錢 厲錢]</label>
+                <input type="text" id="counts" value="3 4 3">
+            </div>
+            <div class="input-group">
+                <label>擲出數量 (n)</label>
+                <input type="number" id="n_val" value="3">
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>擲出通寶總數 (n)</label>
-            <input type="number" id="n_val" value="3" min="1">
-        </div>
-
-        <div class="input-group">
-            <label>需求組合 (每行一組組合，格式: 花 衡 厲)</label>
-            <textarea id="requires" placeholder="例如:&#10;2 1 0&#10;0 2 1"></textarea>
-        </div>
-
-        <button onclick="runCalculation()">開始計算機率</button>
-
-        <div id="results-container" style="display: none;">
-            <div id="prob-list"></div>
-            <div id="winner-info" class="winner-box"></div>
+        <div class="module-card">
+            <div class="module-title">敵方需求 (Enemy)</div>
+            <div class="input-group">
+                <label>需求組合 (每行一組組合: 花 衡 厲)</label>
+                <textarea id="requires" placeholder="例如: 1 1 1"></textarea>
+            </div>
         </div>
     </div>
 
-    <script>
-        // --- 核心數學模塊 ---
-        const factorial = (n) => {
-            if (n < 0) return 0;
-            let res = 1;
-            for (let i = 2; i <= n; i++) res *= i;
-            return res;
-        };
+    <button onclick="runCalculation()">開始邏輯演算 (Initiate Logic)</button>
 
-        // 邏輯遷移：與你的 Python get_cumulative_multinomial_probs 完全對應
-        function getMultinomialProb(n, probs, reqs) {
-            const [p1, p2, p3] = probs;
-            const [r1, r2, r3] = reqs;
-            if (reqs.reduce((a, b) => a + b, 0) > n) return 0;
+    <div id="result-display" style="display: none;">
+        <div class="module-title">演算結果 (Analysis)</div>
+        <div id="prob-list"></div>
+        <div id="winner-info"></div>
+    </div>
+</div>
 
-            let probSum = 0;
-            // 使用與 Python 版本相同的邊界優化 range
-            for (let k1 = r1; k1 <= n - r2 - r3; k1++) {
-                for (let k2 = r2; k2 <= n - k1 - r3; k2++) {
-                    let k3 = n - k1 - k2;
-                    // 多項式係數公式: n! / (k1! * k2! * k3!)
-                    let coef = factorial(n) / (factorial(k1) * factorial(k2) * factorial(k3));
-                    probSum += coef * Math.pow(p1, k1) * Math.pow(p2, k2) * Math.pow(p3, k3);
-                }
-            }
-            return probSum;
-        }
+<script>
+    // 這裡維持原本的 JavaScript 數學邏輯
+    const factorial = (n) => {
+        let res = 1;
+        for (let i = 2; i <= n; i++) res *= i;
+        return res;
+    };
 
-        // --- UI 處理模塊 ---
-        function runCalculation() {
-            const counts = document.getElementById('counts').value.trim().split(/\s+/).map(Number);
-            const n = parseInt(document.getElementById('n_val').value);
-            const reqLines = document.getElementById('requires').value.trim().split('\n').filter(l => l.trim());
-
-            if (counts.length !== 3) {
-                alert("請確保『擁有數量』輸入了 3 個數字");
-                return;
-            }
-
-            const totalCoins = counts.reduce((a, b) => a + b, 0);
-            const baseProbs = counts.map(c => c / totalCoins);
-            const coinNames = ['花錢', '衡錢', '厲錢'];
-
-            let results = [];
-            reqLines.forEach((line, index) => {
-                const req = line.trim().split(/\s+/).map(Number);
-                if (req.length === 3) {
-                    const p = getMultinomialProb(n, baseProbs, req);
-                    results.push({
-                        prob: p,
-                        label: `選項${index + 1} (${coinNames[0]}:${req[0]} ${coinNames[1]}:${req[1]} ${coinNames[2]}:${req[2]})`
-                    });
-                }
-            });
-
-            if (results.length === 0) {
-                alert("請至少輸入一組有效需求組合");
-                return;
-            }
-
-            displayResults(results);
-        }
-
-        function displayResults(results) {
-            const container = document.getElementById('results-container');
-            const listDiv = document.getElementById('prob-list');
-            const winnerDiv = document.getElementById('winner-info');
-
-            container.style.display = 'block';
-            listDiv.innerHTML = '<h3>📊 各項機率</h3>';
-
-            results.forEach(res => {
-                listDiv.innerHTML += `
-                <div class="result-item">
-                    <strong>${res.label}</strong><br>
-                    機率: ${(res.prob * 100).toFixed(2)}%
-                </div>
-            `;
-            });
-
-            // 處理並列最高機率的邏輯
-            const maxP = Math.max(...results.map(r => r.prob));
-            const winners = results.filter(r => r.prob === maxP).map(r => r.label);
-
-            if (maxP === 0) {
-                winnerDiv.innerHTML = `<span class="winner-title">💡 結論</span>所有選項機率皆為 0%`;
-            } else {
-                winnerDiv.innerHTML = `
-                <span class="winner-title">💡 結論 (${(maxP * 100).toFixed(2)}%)</span>
-                ${winners.length > 1 ? '並列最高：' : ''} ${winners.join('、')}
-            `;
+    function getMultinomialProb(n, probs, reqs) {
+        const [p1, p2, p3] = probs;
+        const [r1, r2, r3] = reqs;
+        if (reqs.reduce((a, b) => a + b, 0) > n) return 0;
+        let probSum = 0;
+        for (let k1 = r1; k1 <= n - r2 - r3; k1++) {
+            for (let k2 = r2; k2 <= n - k1 - r3; k2++) {
+                let k3 = n - k1 - k2;
+                let coef = factorial(n) / (factorial(k1) * factorial(k2) * factorial(k3));
+                probSum += coef * Math.pow(p1, k1) * Math.pow(p2, k2) * Math.pow(p3, k3);
             }
         }
-    </script>
+        return probSum;
+    }
 
+    function runCalculation() {
+        const counts = document.getElementById('counts').value.trim().split(/\s+/).map(Number);
+        const n = parseInt(document.getElementById('n_val').value);
+        const reqLines = document.getElementById('requires').value.trim().split('\n').filter(l => l.trim());
+        const baseProbs = counts.map(c => c / counts.reduce((a, b) => a + b, 0));
+
+        let results = [];
+        reqLines.forEach((line, i) => {
+            const req = line.trim().split(/\s+/).map(Number);
+            if (req.length === 3) {
+                const p = getMultinomialProb(n, baseProbs, req);
+                results.push({ p, label: `組合 ${i + 1} (${req.join('/')})` });
+            }
+        });
+
+        const display = document.getElementById('result-display');
+        const listDiv = document.getElementById('prob-list');
+        const winnerDiv = document.getElementById('winner-info');
+        
+        display.style.display = 'block';
+        listDiv.innerHTML = results.map(r => `
+            <div class="result-row">
+                <span>${r.label}</span>
+                <span style="color: var(--accent-cyan)">${(r.p * 100).toFixed(2)}%</span>
+            </div>
+        `).join('');
+
+        const maxP = Math.max(...results.map(r => r.p));
+        const winners = results.filter(r => r.p === maxP).map(r => r.label);
+        winnerDiv.innerHTML = `
+            <div class="winner-panel">
+                <div style="font-size: 0.75rem; color: var(--accent-cyan)">OPTIMAL OPTION</div>
+                <div style="font-size: 1.1rem; margin-top: 5px">${maxP === 0 ? '無有效選項' : winners.join(' / ')}</div>
+            </div>
+        `;
+    }
+</script>
 </body>
-
 </html>
